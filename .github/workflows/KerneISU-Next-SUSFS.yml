@@ -9,7 +9,7 @@ on:
       MANIFEST:
         description: "配置文件"
         required: true
-        default: 'gt7pro'
+        default: 'gt7pro_v'
       CPUD:
         description: "处理器代号"
         required: true
