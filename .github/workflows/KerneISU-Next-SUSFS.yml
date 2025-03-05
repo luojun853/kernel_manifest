@@ -5,23 +5,23 @@ on:
       CPU:
         description: "处理器分支"
         required: true
-        default: 'sm8650'
+        default: 'sm8750'
       MANIFEST:
         description: "配置文件"
         required: true
-        default: 'gt5pro'
+        default: 'gt7pro'
       CPUD:
         description: "处理器代号"
         required: true
-        default: 'pineapple'
+        default: 'sun'
       ANDROID_VERSION:
         description: "内核安卓版本"
         required: true
-        default: 'android14'
+        default: 'android15'
       KERNEL_VERSION:
         description: "内核版本"
         required: true
-        default: '6.1'
+        default: '6.6'
       SUSFS_ENABLED:
         description: "添加 SUSFS"
         required: true
@@ -68,10 +68,8 @@ jobs:
           repo sync -c -j$(nproc --all) --no-tags --fail-fast
           rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
           rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
-          sed -i 's|echo "\$res"|echo "-android14-11-o-${{ env.KVER }}"|' kernel_platform/common/scripts/setlocalversion
-          sed -i 's|echo "\$res"|echo "-android14-11-o-${{ env.KVER }}"|' kernel_platform/msm-kernel/scripts/setlocalversion
-          sed -i 's/ -dirty//g' kernel_platform/external/dtc/scripts/setlocalversion
-          sed -i 's/SUBLEVEL = 68/SUBLEVEL = 75/' kernel_platform/msm-kernel/Makefile
+          sed -i 's/ -dirty//g' kernel_platform/common/scripts/setlocalversion
+          sed -i 's/ -dirty//g' kernel_platform/msm-kernel/scripts/setlocalversion
 
       - name: Set up KernelSU Next
         run: |
@@ -91,7 +89,7 @@ jobs:
           cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU-Next/
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
           # 0001-kernel-patch-susfs-v1.5.5-to-KernelSU-Next-v1.0.5.patch
-          cp ../kernel_patches/0001-kernel-patch-susfs-${{ github.event.inputs.SUSFS_VERSION }}-to-KernelSU-Next-${{ github.event.inputs.KSU_NEXT_VERSION }}.patch ./KernelSU-Next/
+          cp ../kernel_patches/next/0001-kernel-patch-susfs-${{ github.event.inputs.SUSFS_VERSION }}-to-KernelSU-Next-${{ github.event.inputs.KSU_NEXT_VERSION }}.patch ./KernelSU-Next/
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
           
@@ -100,10 +98,8 @@ jobs:
           patch -p1 < 0001-kernel-patch-susfs-${{ github.event.inputs.SUSFS_VERSION }}-to-KernelSU-Next-${{ github.event.inputs.KSU_NEXT_VERSION }}.patch || true
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
-          cp ../../kernel_patches/69_hide_stuff.patch ./
-          patch -p1 -F 3 < 69_hide_stuff.patch
-          patch -p1 < ../../.repo/manifests/patches/001-lz4.patch
-          patch -p1 < ../../.repo/manifests/patches/002-zstd.patch
+          cp ../../kernel_patches/next/next_hooks.patch ./
+          patch -p1 -F 3 < next_hooks.patch
 
       - name: Build kernel
         run: |
