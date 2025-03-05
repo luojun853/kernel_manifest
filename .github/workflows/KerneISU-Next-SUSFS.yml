@@ -1,4 +1,4 @@
-name: Build Kernel Next-SUSFS For Realme GT5 Pro
+name: Build Kernel Next-SUSFS For Realme GT7 Pro
 on:
   workflow_dispatch:
     inputs:
